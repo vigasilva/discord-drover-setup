@@ -31,6 +31,12 @@ On Arch Linux with Hyprland, run this executable as your normal user:
 
 It uses `sudo` to install Discord, Tor, and the needed PipeWire/portal packages; enables `tor.service`; configures Drover to use `socks5://127.0.0.1:9050`; and updates the normal Discord launcher. If a Drover configuration already exists, it is saved as a timestamped backup before the Tor configuration replaces it. Once the script completes, close any running Discord process and launch Discord normally.
 
+### One-command Windows setup
+
+On Windows, run [`windows/setup-windows.cmd`](windows/setup-windows.cmd). It uses WinGet to install Discord and Tor Browser, downloads the latest upstream Windows Drover release, closes Discord, and copies `version.dll` plus a Tor SOCKS5 configuration into every detected Discord installation. It then starts Tor Browser and uses `socks5://127.0.0.1:9150`.
+
+If Tor Browser asks you to connect or configure a bridge, complete that prompt before relaunching Discord. This cannot be safely automated because it depends on the network and any censorship-circumvention settings you choose.
+
 Create a configuration directory, then copy and edit the example:
 
 ```sh
