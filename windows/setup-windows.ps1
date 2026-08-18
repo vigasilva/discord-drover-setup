@@ -10,7 +10,15 @@ $ProgressPreference = 'SilentlyContinue'
 function Install-WinGetPackage {
     param([Parameter(Mandatory = $true)][string]$Id)
     & winget install --exact --id $Id --silent --accept-package-agreements --accept-source-agreements --disable-interactivity
-    if ($LASTEXITCODE -ne 0) { throw "WinGet could not install $Id (exit code $LASTEXITCODE)." }
+    # WinGet returns this code when the package is installed and has no newer
+    # version. That is a successful state for a bootstrap installer.
+    $noUpgradeAvailable = -1978335189
+    if ($LASTEXITCODE -eq 0) { return }
+    if ($LASTEXITCODE -eq $noUpgradeAvailable) {
+        Write-Host "$Id is already installed and current."
+        return
+    }
+    throw "WinGet could not install $Id (exit code $LASTEXITCODE)."
 }
 
 function Get-DiscordDirectories {
