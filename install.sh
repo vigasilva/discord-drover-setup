@@ -63,7 +63,11 @@ done
 if [[ -n "$system_desktop_file" ]]; then
   desktop_file="${applications_dir}/$(basename "$system_desktop_file")"
   awk -v launcher="${prefix}/bin/discord-drover" '
-    /^Exec=/ { print "Exec=" launcher " %U"; next }
+    /^Exec=/ {
+      sub(/^Exec=[^[:space:]]+/, "Exec=" launcher)
+      print
+      next
+    }
     /^TryExec=/ { next }
     { print }
   ' "$system_desktop_file" > "$desktop_file"
