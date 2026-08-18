@@ -21,6 +21,16 @@ For a user-local installation with an application-menu launcher, run:
 
 It installs under `~/.local`, creates `~/.config/discord-drover/drover.ini` only if it does not already exist, and never changes Discord's files. It creates or updates a user-level override at `~/.local/share/applications/discord.desktop`; from then on, launching Discord normally from the application menu runs it through Drover. Existing Discord launch arguments, including Wayland flags, are retained. This override survives Discord package updates.
 
+### One-command Arch Linux setup
+
+On Arch Linux with Hyprland, run this executable as your normal user:
+
+```sh
+./setup-arch.sh
+```
+
+It uses `sudo` to install Discord, Tor, and the needed PipeWire/portal packages; enables `tor.service`; configures Drover to use `socks5://127.0.0.1:9050`; and updates the normal Discord launcher. If a Drover configuration already exists, it is saved as a timestamped backup before the Tor configuration replaces it. Once the script completes, close any running Discord process and launch Discord normally.
+
 Create a configuration directory, then copy and edit the example:
 
 ```sh
