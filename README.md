@@ -19,7 +19,7 @@ For a user-local installation with an application-menu launcher, run:
 ./install.sh
 ```
 
-It installs under `~/.local`, creates `~/.config/discord-drover/drover.ini` only if it does not already exist, and never changes Discord's files. When it finds Discord's system desktop file, it creates a user-level override at `~/.local/share/applications/discord.desktop`; from then on, launching Discord normally from the application menu runs it through Drover. Existing Discord launch arguments, including Wayland flags, are retained. This override survives Discord package updates.
+It installs under `~/.local`, creates `~/.config/discord-drover/drover.ini` only if it does not already exist, and never changes Discord's files. It creates or updates a user-level override at `~/.local/share/applications/discord.desktop`; from then on, launching Discord normally from the application menu runs it through Drover. Existing Discord launch arguments, including Wayland flags, are retained. This override survives Discord package updates.
 
 Create a configuration directory, then copy and edit the example:
 

@@ -53,7 +53,7 @@ else
 fi
 
 system_desktop_file=""
-for candidate in /usr/share/applications/discord.desktop /usr/share/applications/Discord.desktop; do
+for candidate in "${applications_dir}/discord.desktop" /usr/share/applications/discord.desktop /usr/share/applications/Discord.desktop; do
   if [[ -r "$candidate" ]]; then
     system_desktop_file="$candidate"
     break
@@ -62,6 +62,7 @@ done
 
 if [[ -n "$system_desktop_file" ]]; then
   desktop_file="${applications_dir}/$(basename "$system_desktop_file")"
+  desktop_temp_file="$(mktemp "${applications_dir}/.discord-drover.desktop.XXXXXX")"
   awk -v launcher="${prefix}/bin/discord-drover" '
     /^Exec=/ {
       sub(/^Exec=[^[:space:]]+/, "Exec=" launcher)
@@ -70,7 +71,8 @@ if [[ -n "$system_desktop_file" ]]; then
     }
     /^TryExec=/ { next }
     { print }
-  ' "$system_desktop_file" > "$desktop_file"
+  ' "$system_desktop_file" > "$desktop_temp_file"
+  mv "$desktop_temp_file" "$desktop_file"
   echo "Overrode Discord launcher: $desktop_file"
 else
   desktop_file="${applications_dir}/discord-drover.desktop"
