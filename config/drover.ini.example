@@ -1,0 +1,12 @@
+[drover]
+# Empty proxy means direct mode. Only unauthenticated HTTP and SOCKS5 proxies
+# are supported; credentials are deliberately rejected to avoid exposing them
+# through Discord's command line.
+proxy = socks5://127.0.0.1:1080
+
+# When true, the preload library sends the optional packet file and then two
+# one-byte UDP datagrams before Discord's first 74-byte UDP voice packet.
+udp_bypass = true
+
+# Optional. Relative paths are resolved against this configuration file.
+# packet_file = drover-packet.bin

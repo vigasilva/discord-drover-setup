@@ -1,0 +1,5 @@
+[drover]
+# Empty proxy = direct mode. To use Tor's system service on Arch Linux, use:
+# proxy = socks5://127.0.0.1:9050
+proxy =
+udp_bypass = true

@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=Discord (Drover)
+Comment=Launch Discord through Discord Drover
+Exec=@INSTALL_PREFIX@/bin/discord-drover %U
+Terminal=false
+Categories=Network;Chat;InstantMessaging;
+StartupWMClass=discord
