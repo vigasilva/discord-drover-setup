@@ -1,6 +1,6 @@
 [CmdletBinding()]
 param(
-    [string]$Proxy = 'socks5://127.0.0.1:9150',
+    [string]$Proxy,
     [switch]$SkipPackageInstall
 )
 
@@ -44,11 +44,25 @@ function Start-TorBrowserIfFound {
     }
 }
 
+function Get-DetectedTorProxy {
+    if (Test-NetConnection -ComputerName '127.0.0.1' -Port 9150 -InformationLevel Quiet) {
+        return 'socks5://127.0.0.1:9150'
+    }
+    if (Test-NetConnection -ComputerName '127.0.0.1' -Port 9050 -InformationLevel Quiet) {
+        return 'socks5://127.0.0.1:9050'
+    }
+    return 'socks5://127.0.0.1:9150'
+}
+
 if ($PSVersionTable.PSVersion.Major -lt 5) {
     throw 'PowerShell 5 or newer is required.'
 }
 if (-not (Get-Command winget -ErrorAction SilentlyContinue)) {
     throw 'WinGet is required. Install App Installer from Microsoft, then run this setup again.'
+}
+if (-not $Proxy) {
+    $Proxy = Get-DetectedTorProxy
+    Write-Host "Selected Tor proxy: $Proxy"
 }
 if ($Proxy -notmatch '^socks5://[^/@\s:]+:\d{1,5}$') {
     throw 'Proxy must use the form socks5://127.0.0.1:9150.'
@@ -97,9 +111,10 @@ try {
 }
 
 Start-TorBrowserIfFound
-if (Test-NetConnection -ComputerName '127.0.0.1' -Port 9150 -InformationLevel Quiet) {
-    Write-Host 'Tor SOCKS5 is listening on 127.0.0.1:9150.'
+$proxyPort = [int]($Proxy.Split(':')[-1])
+if (Test-NetConnection -ComputerName '127.0.0.1' -Port $proxyPort -InformationLevel Quiet) {
+    Write-Host "Tor SOCKS5 is listening on 127.0.0.1:$proxyPort."
 } else {
-    Write-Warning 'Tor is not listening on port 9150 yet. Finish connecting Tor Browser before launching Discord.'
+    Write-Warning "Tor is not listening on port $proxyPort yet. Finish connecting Tor Browser before launching Discord."
 }
 Write-Host 'Setup complete. Relaunch Discord once Tor is connected.'

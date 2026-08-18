@@ -33,7 +33,13 @@ It uses `sudo` to install Discord, Tor, and the needed PipeWire/portal packages;
 
 ### One-command Windows setup
 
-On Windows, run [`windows/setup-windows.cmd`](windows/setup-windows.cmd). It uses WinGet to install Discord and Tor Browser, downloads the latest upstream Windows Drover release, closes Discord, and copies `version.dll` plus a Tor SOCKS5 configuration into every detected Discord installation. It then starts Tor Browser and uses `socks5://127.0.0.1:9150`.
+On Windows, run [`windows/setup-windows.cmd`](windows/setup-windows.cmd). It uses WinGet to install Discord and Tor Browser, downloads the latest upstream Windows Drover release, closes Discord, and copies `version.dll` plus a Tor SOCKS5 configuration into every detected Discord installation. It automatically chooses an active Tor Browser listener on port `9150`, or a system Tor listener on port `9050`.
+
+To force system Tor port `9050`, run the PowerShell script directly:
+
+```powershell
+.\setup-windows.ps1 -Proxy socks5://127.0.0.1:9050
+```
 
 If Tor Browser asks you to connect or configure a bridge, complete that prompt before relaunching Discord. This cannot be safely automated because it depends on the network and any censorship-circumvention settings you choose.
 
