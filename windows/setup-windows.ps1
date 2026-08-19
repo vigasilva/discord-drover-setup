@@ -1,7 +1,8 @@
 [CmdletBinding()]
 param(
-    [string]$Proxy,
-    [switch]$SkipPackageInstall
+    [string]$Proxy = 'socks5://127.0.0.1:9050',
+    [switch]$SkipPackageInstall,
+    [string]$TorExpertUrl = 'https://archive.torproject.org/tor-package-archive/torbrowser/15.0.20/tor-expert-bundle-windows-x86_64-15.0.20.tar.gz'
 )
 
 $ErrorActionPreference = 'Stop'
@@ -38,28 +39,53 @@ function Get-DiscordDirectories {
     }
 }
 
-function Start-TorBrowserIfFound {
-    $candidates = @(
-        (Join-Path $env:LOCALAPPDATA 'Tor Browser\Browser\firefox.exe'),
-        (Join-Path $env:USERPROFILE 'Desktop\Tor Browser\Browser\firefox.exe')
-    )
-    $browser = $candidates | Where-Object { Test-Path $_ } | Select-Object -First 1
-    if ($browser) {
-        Start-Process -FilePath $browser -ArgumentList '-osint', '-url', 'about:blank'
-        Write-Host 'Started Tor Browser. If it asks to connect or configure a bridge, complete that step first.'
-    } else {
-        Write-Warning 'Tor Browser was installed but its executable could not be located automatically.'
-    }
-}
+function Start-HeadlessTor {
+    param([Parameter(Mandatory = $true)][string]$BundleUrl)
 
-function Get-DetectedTorProxy {
-    if (Test-NetConnection -ComputerName '127.0.0.1' -Port 9150 -InformationLevel Quiet) {
-        return 'socks5://127.0.0.1:9150'
+    $torRoot = Join-Path $env:LOCALAPPDATA 'DiscordDrover\tor'
+    $torExe = Join-Path $torRoot 'tor\tor.exe'
+    $torData = Join-Path $torRoot 'data-directory'
+    $torrc = Join-Path $torRoot 'torrc'
+    $torLog = Join-Path $torRoot 'tor.log'
+    $torPid = Join-Path $torRoot 'tor.pid'
+    New-Item -ItemType Directory -Path $torRoot, $torData -Force | Out-Null
+
+    if (-not (Test-Path $torExe)) {
+        if (-not (Get-Command tar.exe -ErrorAction SilentlyContinue)) {
+            throw 'Windows tar.exe is required to unpack the Tor Expert Bundle.'
+        }
+        $archive = Join-Path $torRoot 'tor-expert-bundle.tar.gz'
+        Write-Host 'Downloading the headless Tor Expert Bundle…'
+        Invoke-WebRequest -Uri $BundleUrl -OutFile $archive
+        & tar.exe -xzf $archive -C $torRoot
+        if ($LASTEXITCODE -ne 0 -or -not (Test-Path $torExe)) {
+            throw 'The Tor Expert Bundle could not be unpacked.'
+        }
+        Remove-Item -LiteralPath $archive -Force
     }
-    if (Test-NetConnection -ComputerName '127.0.0.1' -Port 9050 -InformationLevel Quiet) {
-        return 'socks5://127.0.0.1:9050'
+
+    $torrcContents = @"
+DataDirectory `"$torData`"
+SocksPort 127.0.0.1:9050
+PidFile `"$torPid`"
+CookieAuthentication 1
+Log notice file `"$torLog`"
+"@
+    Set-Content -LiteralPath $torrc -Value $torrcContents -Encoding ASCII
+
+    if (-not (Test-NetConnection -ComputerName '127.0.0.1' -Port 9050 -InformationLevel Quiet)) {
+        Write-Host 'Starting headless Tor on 127.0.0.1:9050…'
+        Start-Process -FilePath $torExe -ArgumentList '-f', "`"$torrc`"" -WindowStyle Hidden
+        $deadline = (Get-Date).AddSeconds(60)
+        do {
+            Start-Sleep -Seconds 2
+            if (Test-NetConnection -ComputerName '127.0.0.1' -Port 9050 -InformationLevel Quiet) { break }
+        } while ((Get-Date) -lt $deadline)
     }
-    return 'socks5://127.0.0.1:9150'
+
+    if (-not (Test-NetConnection -ComputerName '127.0.0.1' -Port 9050 -InformationLevel Quiet)) {
+        throw "Headless Tor did not open port 9050. Check $torLog."
+    }
 }
 
 if ($PSVersionTable.PSVersion.Major -lt 5) {
@@ -68,19 +94,16 @@ if ($PSVersionTable.PSVersion.Major -lt 5) {
 if (-not (Get-Command winget -ErrorAction SilentlyContinue)) {
     throw 'WinGet is required. Install App Installer from Microsoft, then run this setup again.'
 }
-if (-not $Proxy) {
-    $Proxy = Get-DetectedTorProxy
-    Write-Host "Selected Tor proxy: $Proxy"
-}
 if ($Proxy -notmatch '^socks5://[^/@\s:]+:\d{1,5}$') {
     throw 'Proxy must use the form socks5://127.0.0.1:9150.'
 }
 
 if (-not $SkipPackageInstall) {
-    Write-Host 'Installing Discord and Tor Browser with WinGet…'
+    Write-Host 'Installing Discord with WinGet…'
     Install-WinGetPackage -Id 'Discord.Discord'
-    Install-WinGetPackage -Id 'TorProject.TorBrowser'
 }
+
+Start-HeadlessTor -BundleUrl $TorExpertUrl
 
 Get-Process -Name Discord, DiscordCanary, DiscordPTB -ErrorAction SilentlyContinue | Stop-Process -Force
 
@@ -118,11 +141,10 @@ try {
     if (Test-Path $tempDirectory) { Remove-Item -LiteralPath $tempDirectory -Recurse -Force }
 }
 
-Start-TorBrowserIfFound
 $proxyPort = [int]($Proxy.Split(':')[-1])
 if (Test-NetConnection -ComputerName '127.0.0.1' -Port $proxyPort -InformationLevel Quiet) {
     Write-Host "Tor SOCKS5 is listening on 127.0.0.1:$proxyPort."
 } else {
-    Write-Warning "Tor is not listening on port $proxyPort yet. Finish connecting Tor Browser before launching Discord."
+    Write-Warning "Tor is not listening on port $proxyPort."
 }
-Write-Host 'Setup complete. Relaunch Discord once Tor is connected.'
+Write-Host 'Setup complete. Relaunch Discord.'
