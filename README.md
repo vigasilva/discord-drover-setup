@@ -1,6 +1,6 @@
-# Discord Drover
+# Discord Drover Setup
 
-Discord Drover is a per-process proxy helper for the native Discord desktop client.
+Discord Drover Setup simplifies installing and configuring Discord Drover on Windows and provides a native Linux implementation for the Discord desktop client. It is an integration/setup project, not a fork of the upstream Windows Drover project.
 
 - **Linux:** a launcher adds Discord proxy settings and loads a small `LD_PRELOAD` library for the original project's UDP prelude behavior.
 - **Windows:** setup downloads the upstream Drover release, installs its `version.dll` beside Discord, and can run a local headless Tor SOCKS5 service.
