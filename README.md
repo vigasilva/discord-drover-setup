@@ -1,6 +1,8 @@
-# Discord Drover Setup
+# Discord Drover Setup (Unofficial)
 
-Discord Drover Setup simplifies installing and configuring Discord Drover on Windows and provides a native Linux implementation for the Discord desktop client. It is an integration/setup project, not a fork of the upstream Windows Drover project.
+> Original Windows Discord Drover: [hdrover/discord-drover](https://github.com/hdrover/discord-drover), by **hdrover**. Please use and support the upstream project.
+
+Discord Drover Setup simplifies installing and configuring the original Windows Discord Drover and provides an independently implemented Linux helper for the Discord desktop client. It is an unofficial integration/setup project, not a fork of or substitute for the upstream project.
 
 - **Linux:** a launcher adds Discord proxy settings and loads a small `LD_PRELOAD` library for the original project's UDP prelude behavior.
 - **Windows:** setup downloads the upstream Drover release, installs its `version.dll` beside Discord, and can run a local headless Tor SOCKS5 service.
@@ -28,8 +30,8 @@ The Linux implementation requires a native Discord installation. Flatpak Discord
 
 Tor and ordinary SOCKS proxies are not suitable for Discord screen sharing, streaming, or reliable voice media. This project does **not** tunnel Discord UDP through Tor; its UDP behavior only sends small prelude datagrams before a matching voice packet. Use a low-latency VPN such as WireGuard when reliable UDP media is required.
 
-The Windows setup downloads the published upstream Windows Drover binary; this repository does not bundle it. See [NOTICE](NOTICE) for attribution.
+The Windows setup downloads the published upstream Windows Drover binary from its original release page; this repository does not bundle it. See [UPSTREAM.md](UPSTREAM.md) and [NOTICE](NOTICE) for attribution and scope.
 
 ## License
 
-The Linux implementation and setup scripts in this repository are released under the [MIT License](LICENSE). The separately downloaded upstream Windows Drover release remains subject to its upstream terms.
+The Linux implementation and setup scripts in this repository are released under the [MIT License](LICENSE). The separately downloaded upstream Windows Drover release remains the work of its original author and is subject to its upstream terms.
