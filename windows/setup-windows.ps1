@@ -30,9 +30,9 @@ function Get-DiscordDirectories {
     foreach ($root in $roots) {
         if (Test-Path $root) {
             Get-ChildItem -Path $root -Directory -Filter 'app-*' | Where-Object {
-                Test-Path (Join-Path $_.FullName 'Discord.exe') -or
-                Test-Path (Join-Path $_.FullName 'DiscordCanary.exe') -or
-                Test-Path (Join-Path $_.FullName 'DiscordPTB.exe')
+                (Test-Path (Join-Path $_.FullName 'Discord.exe')) -or
+                (Test-Path (Join-Path $_.FullName 'DiscordCanary.exe')) -or
+                (Test-Path (Join-Path $_.FullName 'DiscordPTB.exe'))
             }
         }
     }
