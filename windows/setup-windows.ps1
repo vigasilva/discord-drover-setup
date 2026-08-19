@@ -84,16 +84,16 @@ if (-not $SkipPackageInstall) {
 
 Get-Process -Name Discord, DiscordCanary, DiscordPTB -ErrorAction SilentlyContinue | Stop-Process -Force
 
-$release = Invoke-RestMethod -Uri 'https://api.github.com/repos/hdrover/discord-drover/releases/latest' -Headers @{ 'User-Agent' = 'Discord-Drover-Setup' }
-$asset = $release.assets | Where-Object { $_.name -match '^drover-v.+\.zip$' } | Select-Object -First 1
-if (-not $asset) { throw 'The upstream Drover release does not contain the expected ZIP asset.' }
+# Do not use the GitHub REST API here: shared IP addresses can exhaust its
+# unauthenticated rate limit. This redirect is the upstream release asset.
+$droverReleaseUrl = 'https://github.com/hdrover/discord-drover/releases/latest/download/drover-v0.9.zip'
 
 $tempDirectory = Join-Path ([System.IO.Path]::GetTempPath()) ("discord-drover-" + [Guid]::NewGuid())
 New-Item -ItemType Directory -Path $tempDirectory | Out-Null
 try {
-    $archive = Join-Path $tempDirectory $asset.name
+    $archive = Join-Path $tempDirectory 'drover-v0.9.zip'
     $expanded = Join-Path $tempDirectory 'expanded'
-    Invoke-WebRequest -Uri $asset.browser_download_url -OutFile $archive
+    Invoke-WebRequest -Uri $droverReleaseUrl -OutFile $archive
     Expand-Archive -Path $archive -DestinationPath $expanded -Force
 
     $versionDll = Get-ChildItem -Path $expanded -Recurse -File -Filter 'version.dll' | Select-Object -First 1
