@@ -95,7 +95,7 @@ if (-not (Get-Command winget -ErrorAction SilentlyContinue)) {
     throw 'WinGet is required. Install App Installer from Microsoft, then run this setup again.'
 }
 if ($Proxy -notmatch '^socks5://[^/@\s:]+:\d{1,5}$') {
-    throw 'Proxy must use the form socks5://127.0.0.1:9150.'
+    throw 'Proxy must use the form socks5://127.0.0.1:9050.'
 }
 
 if (-not $SkipPackageInstall) {
