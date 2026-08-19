@@ -19,6 +19,8 @@ It does not install a system-wide VPN or edit global proxy settings.
 
 The Linux implementation always builds locally from this repository's source. It requires a native Discord installation; Flatpak Discord is not supported because its sandbox prevents loading the host preload library.
 
+Every GitHub release includes a ready-to-extract Windows ZIP and Linux source tarball. The Windows ZIP starts with `setup-windows.cmd`; the Linux tarball starts with `setup-arch.sh` on Arch or `install.sh` after installing the documented prerequisites.
+
 ## Documentation
 
 - [Installation guide for Windows and major Linux distributions](docs/INSTALL.md)

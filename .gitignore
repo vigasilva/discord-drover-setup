@@ -3,3 +3,4 @@
 /windows/*.zip
 /windows/upstream-discord-drover/
 /windows/build-output/
+/dist/
