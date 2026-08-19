@@ -1,0 +1,3 @@
+This repository contains an independently implemented Linux launcher/preload helper and setup automation.
+
+The Windows setup script downloads the published release of Discord Drover from https://github.com/hdrover/discord-drover at install time. It does not bundle that upstream binary or source code. Discord Drover is an upstream project by hdrover; consult its repository for its terms and release information.
