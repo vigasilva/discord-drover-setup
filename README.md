@@ -14,10 +14,10 @@ It does not install a system-wide VPN or edit global proxy settings.
 | Platform | Recommended setup |
 | --- | --- |
 | Windows 10/11 | Run [`windows/setup-windows.cmd`](windows/setup-windows.cmd). |
-| Arch Linux / Hyprland | Run [`linux/setup-arch.sh`](linux/setup-arch.sh). |
+| Arch Linux | Run [`linux/setup-arch.sh`](linux/setup-arch.sh). |
 | Debian, Ubuntu, Fedora, openSUSE, or another Linux distribution | Follow the [Linux setup guide](docs/INSTALL.md#linux). |
 
-The Linux implementation requires a native Discord installation. Flatpak Discord is not supported because its sandbox prevents loading the host preload library.
+The Linux implementation always builds locally from this repository's source. It requires a native Discord installation; Flatpak Discord is not supported because its sandbox prevents loading the host preload library.
 
 ## Documentation
 

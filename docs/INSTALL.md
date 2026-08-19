@@ -23,18 +23,29 @@ Run the PowerShell script directly only when you need a different proxy:
 
 Headless Tor files and logs are kept in `%LOCALAPPDATA%\DiscordDrover\tor`. If it cannot connect, inspect `tor.log`; bridge configuration is a manual network-specific decision.
 
+### Windows: build the upstream source locally
+
+If you do not want the setup to download an upstream release binary, build it locally with Embarcadero RAD Studio's MSBuild support. This script clones the upstream repository only into your local working directory; it does not add upstream source or binaries to this repository.
+
+```powershell
+.\build-from-source.ps1 -FetchUpstream
+.\setup-windows.ps1 -LocalDroverDirectory .\build-output
+```
+
+Run the first command from a RAD Studio Developer Command Prompt, or pass the full `MSBuild.exe` path with `-MSBuildPath`. The script builds the upstream Win64 Release DLL and writes a locally created `version.dll` into `build-output` for the installer to use.
+
 ## Linux
 
 ### Arch Linux
 
-For Arch Linux with Hyprland, run the automated setup as your normal desktop user:
+For Arch Linux, run the automated setup as your normal desktop user:
 
 ```sh
 cd linux
 ./setup-arch.sh
 ```
 
-It installs build dependencies, Discord, Tor, PipeWire, and the Hyprland portal; enables `tor.service`; writes a Tor configuration; and updates the user-level Discord desktop launcher.
+It installs build dependencies, Discord, and Tor; enables `tor.service`; writes a Tor configuration; builds the Linux helper locally; and updates the user-level Discord desktop launcher.
 
 ### Debian and Ubuntu
 
@@ -42,11 +53,9 @@ Install the native Discord package from Discord, then install prerequisites:
 
 ```sh
 sudo apt update
-sudo apt install build-essential cmake tor pipewire wireplumber xdg-desktop-portal xdg-desktop-portal-gtk
+sudo apt install build-essential cmake tor
 sudo systemctl enable --now tor.service
 ```
-
-For GNOME, install `xdg-desktop-portal-gnome` instead of the GTK portal when it is available. For KDE Plasma, use `xdg-desktop-portal-kde`.
 
 Configure and install Drover:
 
@@ -62,30 +71,26 @@ install -m 600 config/drover.tor.ini ~/.config/discord-drover/drover.ini
 Install Discord from its native RPM or your chosen trusted package source, then run:
 
 ```sh
-sudo dnf install gcc gcc-c++ make cmake tor pipewire wireplumber xdg-desktop-portal xdg-desktop-portal-gtk
+sudo dnf install gcc gcc-c++ make cmake tor
 sudo systemctl enable --now tor.service
 ```
 
-For GNOME, install `xdg-desktop-portal-gnome`; for KDE Plasma, install `xdg-desktop-portal-kde`. Then use the same configure-and-install commands shown for Debian and Ubuntu.
+Then use the same configure-and-install commands shown for Debian and Ubuntu. The helper is built locally when `linux/install.sh` runs.
 
 ### openSUSE
 
 Install Discord from its native package or a trusted package source, then run:
 
 ```sh
-sudo zypper install gcc gcc-c++ make cmake tor pipewire wireplumber xdg-desktop-portal xdg-desktop-portal-gtk
+sudo zypper install gcc gcc-c++ make cmake tor
 sudo systemctl enable --now tor.service
 ```
 
-Use the matching GNOME or KDE portal package if applicable, then use the same configure-and-install commands shown for Debian and Ubuntu.
+Then use the same configure-and-install commands shown for Debian and Ubuntu. The helper is built locally when `linux/install.sh` runs.
 
 ### Other distributions
 
-Install a C compiler, `make`, CMake, native Discord, Tor, PipeWire, WirePlumber, `xdg-desktop-portal`, and the portal backend matching your desktop environment. Start Tor's system service, copy `linux/config/drover.tor.ini` to `~/.config/discord-drover/drover.ini`, and run `linux/install.sh`.
-
-### Wayland screen sharing
-
-Wayland screen capture requires PipeWire, WirePlumber, `xdg-desktop-portal`, and a backend for your desktop environment. Hyprland requires `xdg-desktop-portal-hyprland`; GNOME and KDE need their respective portal backends. These components solve capture permissions only—Tor/proxy networking can still prevent a Discord stream from connecting.
+Install a C compiler, `make`, CMake, native Discord, and Tor. Start Tor's system service, copy `linux/config/drover.tor.ini` to `~/.config/discord-drover/drover.ini`, and run `linux/install.sh`. This compiles the Linux helper from the checked-out source on the local machine; it does not download a prebuilt Linux executable.
 
 ## Uninstall
 

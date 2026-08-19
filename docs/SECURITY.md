@@ -8,6 +8,8 @@
 
 Review the source and use releases you trust before running either setup script.
 
+For Windows, a source-build option is available through `windows/build-from-source.ps1`. It builds the upstream source locally with RAD Studio and passes the resulting `version.dll` to the setup script, avoiding a prebuilt upstream release download.
+
 ## Network limitations
 
 - TCP/web traffic can use the configured proxy.

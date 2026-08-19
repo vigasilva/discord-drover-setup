@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# One-command setup for Arch Linux + Hyprland. Run as your normal user.
+# One-command setup for Arch Linux. Run as your normal user.
 set -euo pipefail
 
 if [[ $EUID -eq 0 ]]; then
@@ -19,10 +19,9 @@ project_dir="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 config_dir="${XDG_CONFIG_HOME:-${HOME}/.config}/discord-drover"
 config_file="${config_dir}/drover.ini"
 
-echo "Installing Discord, Tor, and Drover build/runtime dependencies…"
+echo "Installing Discord, Tor, and Drover build dependencies…"
 sudo pacman -S --needed --noconfirm \
-  base-devel cmake discord tor pipewire wireplumber \
-  xdg-desktop-portal xdg-desktop-portal-hyprland
+  base-devel cmake discord tor
 
 echo "Enabling the local Tor SOCKS5 service…"
 sudo systemctl enable --now tor.service

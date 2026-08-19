@@ -2,6 +2,7 @@
 param(
     [string]$Proxy = 'socks5://127.0.0.1:9050',
     [switch]$SkipPackageInstall,
+    [string]$LocalDroverDirectory,
     [string]$TorExpertUrl = 'https://archive.torproject.org/tor-package-archive/torbrowser/15.0.20/tor-expert-bundle-windows-x86_64-15.0.20.tar.gz'
 )
 
@@ -107,21 +108,30 @@ Start-HeadlessTor -BundleUrl $TorExpertUrl
 
 Get-Process -Name Discord, DiscordCanary, DiscordPTB -ErrorAction SilentlyContinue | Stop-Process -Force
 
-# Do not use the GitHub REST API here: shared IP addresses can exhaust its
-# unauthenticated rate limit. This redirect is the upstream release asset.
 $droverReleaseUrl = 'https://github.com/hdrover/discord-drover/releases/latest/download/drover-v0.9.zip'
 
 $tempDirectory = Join-Path ([System.IO.Path]::GetTempPath()) ("discord-drover-" + [Guid]::NewGuid())
 New-Item -ItemType Directory -Path $tempDirectory | Out-Null
 try {
-    $archive = Join-Path $tempDirectory 'drover-v0.9.zip'
-    $expanded = Join-Path $tempDirectory 'expanded'
-    Invoke-WebRequest -Uri $droverReleaseUrl -OutFile $archive
-    Expand-Archive -Path $archive -DestinationPath $expanded -Force
-
-    $versionDll = Get-ChildItem -Path $expanded -Recurse -File -Filter 'version.dll' | Select-Object -First 1
-    if (-not $versionDll) { throw 'The downloaded Drover release does not contain version.dll.' }
-    $packetFile = Get-ChildItem -Path $expanded -Recurse -File -Filter 'drover-packet.bin' | Select-Object -First 1
+    if ($LocalDroverDirectory) {
+        if (-not (Test-Path $LocalDroverDirectory)) {
+            throw "Local Drover directory was not found: $LocalDroverDirectory"
+        }
+        $versionDll = Get-ChildItem -Path $LocalDroverDirectory -Recurse -File -Filter 'version.dll' | Select-Object -First 1
+        if (-not $versionDll) { throw 'The local Drover directory does not contain version.dll.' }
+        $packetFile = Get-ChildItem -Path $LocalDroverDirectory -Recurse -File -Filter 'drover-packet.bin' | Select-Object -First 1
+        Write-Host "Using locally built Drover files from $LocalDroverDirectory"
+    } else {
+        # Do not use the GitHub REST API here: shared IP addresses can exhaust
+        # its unauthenticated rate limit. This redirect is the upstream asset.
+        $archive = Join-Path $tempDirectory 'drover-v0.9.zip'
+        $expanded = Join-Path $tempDirectory 'expanded'
+        Invoke-WebRequest -Uri $droverReleaseUrl -OutFile $archive
+        Expand-Archive -Path $archive -DestinationPath $expanded -Force
+        $versionDll = Get-ChildItem -Path $expanded -Recurse -File -Filter 'version.dll' | Select-Object -First 1
+        if (-not $versionDll) { throw 'The downloaded Drover release does not contain version.dll.' }
+        $packetFile = Get-ChildItem -Path $expanded -Recurse -File -Filter 'drover-packet.bin' | Select-Object -First 1
+    }
 
     $discordDirectories = @(Get-DiscordDirectories)
     if ($discordDirectories.Count -eq 0) {
